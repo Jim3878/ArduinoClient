@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">alarmer</string>
     <string name="title_activity_br_">BR_Activity</string>
-    <string name="ip">ip</string>
-    <string name="port">port</string>
+    <string name="ip">ip:</string>
+    <string name="port">port:</string>
     <string name="discnt_alarm">remind me if it disconnect</string>
     <string name="btn_connect">connect</string>
     <string name="btn_test">alarm test</string>

@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">alarmer</string>
     <string name="title_activity_br_">BR_Activity</string>
-    <string name="ip">ip</string>
-    <string name="port">port(連接阜)</string>
+    <string name="ip">ip:</string>
+    <string name="port">port(連接阜):</string>
     <string name="discnt_alarm">斷線警告</string>
     <string name="btn_connect">連線</string>
     <string name="btn_test">警告測試</string>
