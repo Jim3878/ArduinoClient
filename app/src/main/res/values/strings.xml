@@ -6,4 +6,9 @@
     <string name="discnt_alarm">remind me if it disconnect</string>
     <string name="btn_connect">connect</string>
     <string name="btn_test">alarm test</string>
+
+    <string name="connected">connected</string>
+    <string name="btn_disconnect">disconnect</string>
+
+    <string name="disconnected">disconnected</string>
 </resources>

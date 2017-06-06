@@ -38,11 +38,13 @@ public class MainActivity extends AppCompatActivity {
     private Socket clientSocket;        //客戶端的socket
     private BufferedWriter bw;            //取得網路輸出串流
     private BufferedReader br;            //取得網路輸入串流
+    private static boolean isConnected=false;
         //private JSONObject json_write,json_read;        //從java伺服器傳遞與接收資料的json
 
 
     Button almBtn;
     Button cntBtn;
+    Button btn_disconnect;
     EditText ipET;
     EditText portET;
     TextView stateTV;
@@ -71,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
         cntBtn.setOnClickListener(cont);
         ipET=(EditText)findViewById(R.id.ip_ET);
         ipET.setText("192.168.137.1");
+        btn_disconnect=(Button)findViewById(R.id.btn_disconnect);
+        btn_disconnect.setOnClickListener(this.disconnect);
 
         portET=(EditText)findViewById(R.id.host_ET);
         portET.setText("7777");
@@ -87,22 +91,33 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case    2:
                         oc("error:"+msg.what,false);
+                        alarmCB.setText(getText(R.string.connected));
                         alarmCB.setEnabled(true);
                         break;
                     case    3:
                         oc("error:"+msg.what,false);
                         alarmCB.setEnabled(true);
                         break;
-                    case 4:
-                        stateTV.setText("Connected");
+                    case    4://連線成功
+                        stateTV.setText(getText(R.string.connected));
+                        cntBtn.setText(getText(R.string.connected));
                         cntBtn.setEnabled(false);
                         alarmCB.setEnabled(false);
                         break;
-                    case 5:
-                        stateTV.setText("Disconnected");
+                    case 5://異常中斷
+                        stateTV.setText(getText(R.string.disconnected));
                         alarmCB.setEnabled(true);
-                        call("連線中斷");
+                        call(getText(R.string.disconnected).toString());
+                        cntBtn.setText(getText(R.string.btn_connect));
+
                         cntBtn.setEnabled(true);
+                        break;
+                    case 6://中斷連線
+                        cntBtn.setEnabled(true);
+                        stateTV.setText(getText(R.string.disconnected));
+                        cntBtn.setText(getText(R.string.btn_connect));
+                        oc(getText(R.string.disconnected).toString(),false);
+                        break;
                 }
                 super.handleMessage(msg);
             }
@@ -143,6 +158,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private OnClickListener disconnect=new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            isConnected=true;
+        }
+    };
+
     /*Connect Server*/
     private  OnClickListener cont=new OnClickListener() {
         @Override
@@ -151,8 +173,8 @@ public class MainActivity extends AppCompatActivity {
             String temp;
             int port;
             try {
-                ip = ipET.getText().toString();
-                port = Integer.valueOf(portET.getText().toString());
+                //ip = ipET.getText().toString();
+                //port = Integer.valueOf(portET.getText().toString());
                 Thread thread = new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -161,9 +183,13 @@ public class MainActivity extends AppCompatActivity {
                             final Socket s;
                             InetAddress serverIp = InetAddress.getByName(ipET.getText().toString());
                             s = new Socket(serverIp,Integer.valueOf(portET.getText().toString()) );
+
+                            //連線成功
                             Message m=new Message();
                             m.what=4;
                             hr.sendMessage(m);
+
+
                             try{
                                 OutputStream os = s.getOutputStream();
                                 BufferedWriter bw = new BufferedWriter( new OutputStreamWriter(s.getOutputStream()));
@@ -176,13 +202,11 @@ public class MainActivity extends AppCompatActivity {
                                 DataInputStream din  = new DataInputStream(s.getInputStream());
                                 DataOutputStream dout = new DataOutputStream(s.getOutputStream());
 
-                               // alarmCB.setEnabled(false);
 
-                                //s.setKeepAlive(true);
                                 if(alarmCB.isChecked()){
                                    s.setSoTimeout(cntChk);
                                 }
-                                while (s.isConnected()) {
+                                while (s.isConnected()&&!isConnected) {
                                     temp=br.readLine();
                                     bw.write("rec:"+temp+"\n");
                                     bw.flush();
@@ -194,22 +218,20 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                     }
 
-                                    //dout.writeChars("get:"+temp);
-
-                                    //int aa=Integer.valueOf(temp);
-                                    //Toast.makeText(MainActivity.this,temp,Toast.LENGTH_SHORT);
-                                    /*if(Integer.valueOf(temp)==0){
-                                        m = new Message();
-                                        m.what = 1;
-                                        hr.sendMessage(m);
-                                    }*/
-                                }/*
+                                }
+                                //按下中斷連線
+                                bw.close();
+                                br.close();
                                 s.close();
                                 m=new Message();
-                                m.what=5;
-                                hr.sendMessage(m);*/
+                                m.what=6;
+                                hr.sendMessage(m);
+                                isConnected=false;
 
                             }catch (Exception e){
+                                bw.close();
+                                br.close();
+                                s.close();
                                 m=new Message();
                                 m.what=5;
                                 hr.sendMessage(m);
@@ -242,6 +264,7 @@ public class MainActivity extends AppCompatActivity {
                 player.stop();
                 player.prepare();
             }catch (Exception e){
+                oc("音樂播放失敗",false);
             }
         }
     };

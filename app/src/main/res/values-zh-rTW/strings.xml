@@ -5,5 +5,8 @@
     <string name="port">port(連接阜):</string>
     <string name="discnt_alarm">斷線警告</string>
     <string name="btn_connect">連線</string>
+    <string name="connected">己連線</string>
+    <string name="disconnected">連線中斷</string>
     <string name="btn_test">警告測試</string>
+    <string name="btn_disconnect">中斷連線</string>
 </resources>
